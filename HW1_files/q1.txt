@@ -1,0 +1,4 @@
+Test accuracy: 92.40 % Test loss: 0.2696
+Total training time: 185375.47 milliseconds
+Inference time: 0.10 milliseconds
+Inference time per image: 0.01 milliseconds
