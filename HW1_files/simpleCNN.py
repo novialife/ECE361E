@@ -4,6 +4,9 @@ import torchvision.datasets as dsets
 import torchvision.transforms as transforms
 import torch.nn.functional as F
 import argparse
+from thop import profile
+from torchsummary import summary
+
 
 # Argument parser
 parser = argparse.ArgumentParser(description='ECE361E HW1 - SimpleCNN')
@@ -30,10 +33,13 @@ learning_rate = args.lr
 random_seed = 1
 torch.manual_seed(random_seed)
 
+device = torch.device("cuda")
+
 # MNIST Dataset (Images and Labels)
 # TODO: Insert here the normalized MNIST dataset
-train_dataset = dsets.MNIST(root='data', train=True, transform=transforms.ToTensor(), download=True)
-test_dataset = dsets.MNIST(root='data', train=False, transform=transforms.ToTensor())
+norm_transform = transforms.Compose([transforms.ToTensor(), transforms.Normalize((0.1307,), (0.3081,))])
+train_dataset = dsets.MNIST(root='data', train=True, transform=norm_transform, download=True)
+test_dataset = dsets.MNIST(root='data', train=False, transform=norm_transform)
 
 # Dataset Loader (Input Pipeline)
 train_loader = torch.utils.data.DataLoader(dataset=train_dataset, batch_size=batch_size, shuffle=True)
@@ -61,6 +67,15 @@ class SimpleCNN(nn.Module):
 
 
 model = SimpleCNN(num_classes)
+model = model.to(device)
+
+torch.save(model.state_dict(), '/work/09277/dala71/maverick2/HW1_files/simplecnn.pth')
+
+input_tensor = torch.randn(1,1,28,28).to("cuda")
+flops, params = profile(model, inputs=(input_tensor,))
+print(summary(model, (1,28,28)))
+print("Flops: ", flops)
+print("Params: ", params)
 
 # Define your loss and optimizer
 criterion = nn.CrossEntropyLoss()  # Softmax is internally computed.
@@ -75,6 +90,9 @@ for epoch in range(num_epochs):
     # Sets the model in training mode.
     model = model.train()
     for batch_idx, (images, labels) in enumerate(train_loader):
+
+        images = images.to(device)
+        labels = labels.to(device)
         # Sets the gradients to zero
         optimizer.zero_grad()
         # The actual inference
@@ -108,6 +126,8 @@ for epoch in range(num_epochs):
     with torch.no_grad():
         for batch_idx, (images, labels) in enumerate(test_loader):
             # Perform the actual inference
+            images = images.to(device)
+            labels = labels.to(device)
             outputs = model(images)
             # Compute the loss
             loss = criterion(outputs, labels)
