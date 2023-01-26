@@ -31,8 +31,6 @@ learning_rate = args.lr
 random_seed = 1
 torch.manual_seed(random_seed)
 
-device = torch.device("cuda:0")
-
 # MNIST Dataset (Images and Labels)
 train_dataset = dsets.MNIST(root='data', train=True, transform=transforms.ToTensor(), download=True)
 test_dataset = dsets.MNIST(root='data', train=False, transform=transforms.ToTensor())
@@ -53,7 +51,6 @@ class LogisticRegression(nn.Module):
         return out
 
 model = LogisticRegression(input_size, num_classes)
-model = model.to(device)
 
 # Define your loss and optimizer
 criterion = nn.CrossEntropyLoss()  # Softmax is internally computed.
@@ -65,8 +62,6 @@ training_accuracies = []
 testing_accuracies = []
 total_training_time = 0
 
-starter = torch.cuda.Event(enable_timing=True)
-end = torch.cuda.Event(enable_timing=True)
 
 # Training loop
 for epoch in range(num_epochs):
@@ -74,14 +69,11 @@ for epoch in range(num_epochs):
     train_correct = 0
     train_total = 0
     train_loss = 0
-    starter.record()
 
     # Sets the model in training mode.
     model = model.train()
     for batch_idx, (images, labels) in enumerate(train_loader):
         # Here we vectorize the 28*28 images as several 784-dimensional inputs
-        images = images.to(device)
-        labels = labels.to(device)
         
         images = images.view(-1, input_size)
         # Sets the gradients to zero
@@ -106,11 +98,8 @@ for epoch in range(num_epochs):
                                                                              len(train_dataset) // batch_size,
                                                                              train_loss / (batch_idx + 1),
                                                                              100. * train_correct / train_total))
-    end.record()
     training_losses.append(train_loss / (batch_idx + 1))
     training_accuracies.append(100. * train_correct / train_total)
-    torch.cuda.synchronize()
-    total_training_time += starter.elapsed_time(end)
 
     # Testing phase
     test_correct = 0
@@ -123,8 +112,6 @@ for epoch in range(num_epochs):
     with torch.no_grad():
         for batch_idx, (images, labels) in enumerate(test_loader):
             # Here we vectorize the 28*28 images as several 784-dimensional inputs
-            images = images.to(device)
-            labels = labels.to(device)
 
             images = images.view(-1, input_size)
             # Perform the actual inference
@@ -145,8 +132,7 @@ for epoch in range(num_epochs):
 test_loader = torch.utils.data.DataLoader(dataset=test_dataset, batch_size=1, shuffle=False)
 
 # Measure inference time
-starter = torch.cuda.Event(enable_timing=True)
-end = torch.cuda.Event(enable_timing=True)
+
 total_inference_time = 0
 # Sets the model in evaluation mode
 model = model.eval()
@@ -155,17 +141,10 @@ model = model.eval()
 with torch.no_grad():
     for batch_idx, (images, labels) in enumerate(test_loader):
         # Here we vectorize the 28*28 images as several 784-dimensional inputs
-        images = images.to(device)
-        labels = labels.to(device)
 
         images = images.view(-1, input_size)
         # Perform the actual inference
-        starter.record()
         outputs = model(images)
-        end.record()
-        torch.cuda.synchronize()
-        total_inference_time += starter.elapsed_time(end)
-
 
 print('Total training time: %.2f seconds' % (total_training_time/1000))
 print('Inference time: %.2f seocnds' % (total_inference_time/1000))
@@ -179,7 +158,6 @@ plt.plot(testing_losses, label='Testing loss')
 plt.legend()
 plt.xlabel('Epoch')
 plt.ylabel('Loss')
-plt.title('Loss plot')
 plt.savefig('loss.png')
 
 plt.figure()
@@ -187,7 +165,6 @@ plt.plot(training_accuracies, label='Training accuracy')
 plt.plot(testing_accuracies, label='Testing accuracy')
 plt.legend()
 plt.xlabel('Epoch')
-plt.ylabel('Accuracy (%)')
-plt.title('Accuracy plot')
+plt.ylabel('Accuracy')
 plt.savefig('accuracy.png')
 

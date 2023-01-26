@@ -141,14 +141,36 @@ for epoch in range(num_epochs):
     testing_losses.append(test_loss / (batch_idx + 1))
     testing_accuracies.append(100. * test_correct / test_total)
 
-print('Total training time: %.2f milliseconds' % total_training_time)
-starter.record()
-outputs = model(images)
-end.record()
-torch.cuda.synchronize()
-total_inference_time = starter.elapsed_time(end)
-print('Inference time: %.2f milliseconds' % total_inference_time)
-print('Inference time per image: %.2f milliseconds' % (total_inference_time / images.shape[0]))
+
+test_loader = torch.utils.data.DataLoader(dataset=test_dataset, batch_size=1, shuffle=False)
+
+# Measure inference time
+starter = torch.cuda.Event(enable_timing=True)
+end = torch.cuda.Event(enable_timing=True)
+total_inference_time = 0
+# Sets the model in evaluation mode
+model = model.eval()
+# Disabling gradient calculation is useful for inference.
+# It will reduce memory consumption for computations.
+with torch.no_grad():
+    for batch_idx, (images, labels) in enumerate(test_loader):
+        # Here we vectorize the 28*28 images as several 784-dimensional inputs
+        images = images.to(device)
+        labels = labels.to(device)
+
+        images = images.view(-1, input_size)
+        # Perform the actual inference
+        starter.record()
+        outputs = model(images)
+        end.record()
+        torch.cuda.synchronize()
+        total_inference_time += starter.elapsed_time(end)
+
+
+print('Total training time: %.2f seconds' % (total_training_time/1000))
+print('Inference time: %.2f seocnds' % (total_inference_time/1000))
+print('Inference time per image: %.2f milliseconds' % (total_inference_time / len(test_dataset)))
+
 # Plot the loss and accuracy curves in separate figures
 import matplotlib.pyplot as plt
 plt.figure()
@@ -157,6 +179,7 @@ plt.plot(testing_losses, label='Testing loss')
 plt.legend()
 plt.xlabel('Epoch')
 plt.ylabel('Loss')
+plt.title('Loss plot')
 plt.savefig('loss.png')
 
 plt.figure()
@@ -164,6 +187,7 @@ plt.plot(training_accuracies, label='Training accuracy')
 plt.plot(testing_accuracies, label='Testing accuracy')
 plt.legend()
 plt.xlabel('Epoch')
-plt.ylabel('Accuracy')
+plt.ylabel('Accuracy (%)')
+plt.title('Accuracy plot')
 plt.savefig('accuracy.png')
 

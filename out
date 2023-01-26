@@ -123,6 +123,6 @@ Epoch: [25/25], Step: [200/468], Loss: 0.2720 Acc: 92.54%
 Epoch: [25/25], Step: [300/468], Loss: 0.2690 Acc: 92.59%
 Epoch: [25/25], Step: [400/468], Loss: 0.2664 Acc: 92.62%
 Test accuracy: 92.40 % Test loss: 0.2696
-Total training time: 188.92 seconds
-Inference time: 0.84 seocnds
-Inference time per image: 0.08 milliseconds
+Total training time: 188089.91 milliseconds
+Inference time: 0.10 milliseconds
+Inference time per image: 0.01 milliseconds
