@@ -1,0 +1,47 @@
+Fitting now with 100 samples
+Fitting 10 folds for each of 1000 candidates, totalling 10000 fits
+1.0
+{'SVM__random_state': 42, 'SVM__max_iter': 10000, 'SVM__kernel': 'sigmoid', 'SVM__gamma': 0.021544346900318832, 'SVM__decision_function_shape': 'ovr', 'SVM__class_weight': None, 'SVM__C': 1000.0}
+
+Testing on bodytrack
+[[907   1]
+ [ 22 524]]
+
+0.984181568088033
+
+              precision    recall  f1-score   support
+
+           0       0.98      1.00      0.99       908
+           1       1.00      0.96      0.98       546
+
+    accuracy                           0.98      1454
+   macro avg       0.99      0.98      0.98      1454
+weighted avg       0.98      0.98      0.98      1454
+
+
+Testing on blackscholes
+[[1010   88]
+ [   1  554]]
+
+0.9461584996975196
+
+              precision    recall  f1-score   support
+
+           0       1.00      0.92      0.96      1098
+           1       0.86      1.00      0.93       555
+
+    accuracy                           0.95      1653
+   macro avg       0.93      0.96      0.94      1653
+weighted avg       0.95      0.95      0.95      1653
+
+
+
+('sigmoid', None, 'ovo', 215.44346900318865, 0.0011497569953977356) (1.0, 1.0, 0.9401088929219601)
+
+('sigmoid', None, 'ovo', 187.3817422860383, 0.001) (1.0, 1.0, 0.9401088929219601)
+('sigmoid', 'balanced', 'ovo', 187.3817422860383, 0.0023101297000831605) (1.0, 0.8466299862448419, 0.9673321234119783)
+
+('rbf', 'balanced', 'ovo', 17.47528400007683, 0.0011497569953977356) (0.99, 0.9573590096286108, 0.9921355111917726)
+
+('sigmoid', None, 'ovo', 44.98432668969444, 0.001) (1.0, 0.9793672627235214, 0.999395039322444)
+
