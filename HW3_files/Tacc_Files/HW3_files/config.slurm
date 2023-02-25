@@ -26,7 +26,7 @@ source $WORK/HW3_virtualenv/bin/activate
 
 # Launch code...
 CUDA_VISIBLE_DEVICES=0 python $WORK/HW3_files/main_pt_11.py --batch_size=128 --epochs=100 > $WORK/HW3_files/out_11 &
-CUDA_VISIBLE_DEVICES=1 python $WORK/HW3_files/main_pt_16.py --batch_size=128 --epochs=100 > $WORK/HW3_files/out_11 &
+CUDA_VISIBLE_DEVICES=1 python $WORK/HW3_files/main_pt_16.py --batch_size=128 --epochs=100 > $WORK/HW3_files/out_16 &
 wait
 
 # ---------------------------------------------------
